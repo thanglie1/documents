@@ -1,0 +1,903 @@
+<!doctype html>
+<html lang="vi">
+ <head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Vật dụng của bác sĩ</title>
+  <script src="/_sdk/element_sdk.js"></script>
+  <style>
+        body {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+            font-family: 'Comic Sans MS', 'Chalkboard SE', 'Arial Rounded MT Bold', cursive, sans-serif;
+            background: linear-gradient(135deg, #E3F2FD 0%, #BBDEFB 100%);
+            overflow-x: hidden;
+            height: 100%;
+            min-height: 100%;
+        }
+
+        html {
+            height: 100%;
+        }
+
+        * {
+            box-sizing: border-box;
+        }
+
+        .game-container {
+            max-width: 1400px;
+            margin: 0 auto;
+            padding: 20px;
+            min-height: 100%;
+            display: flex;
+            flex-direction: column;
+        }
+
+        .header {
+            text-align: center;
+            margin-bottom: 25px;
+        }
+
+        .game-title {
+            font-size: 48px;
+            font-weight: bold;
+            color: #1976D2;
+            text-shadow: 3px 3px 0px #FFF, 5px 5px 0px rgba(0,0,0,0.15);
+            margin: 10px 0;
+            animation: titlePulse 2.5s ease-in-out infinite;
+        }
+
+        @keyframes titlePulse {
+            0%, 100% { transform: scale(1); }
+            50% { transform: scale(1.05); }
+        }
+
+        .doctor-icon {
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            background: #FFF;
+            border-radius: 50%;
+            width: 110px;
+            height: 110px;
+            font-size: 70px;
+            box-shadow: 0 6px 25px rgba(0,0,0,0.15);
+            margin: 15px auto;
+            animation: doctorFloat 3s ease-in-out infinite;
+        }
+
+        @keyframes doctorFloat {
+            0%, 100% { transform: translateY(0px); }
+            50% { transform: translateY(-10px); }
+        }
+
+        .instruction-box {
+            background: #FFF;
+            border-radius: 20px;
+            padding: 22px;
+            margin: 15px auto;
+            max-width: 800px;
+            box-shadow: 0 4px 20px rgba(0,0,0,0.1);
+            border: 4px solid #42A5F5;
+        }
+
+        .instruction-text {
+            font-size: 26px;
+            color: #00897B;
+            font-weight: bold;
+            text-align: center;
+            margin: 0;
+        }
+
+        .game-area {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 35px;
+            margin-top: 25px;
+            flex-grow: 1;
+        }
+
+        .items-section {
+            background: rgba(255, 255, 255, 0.95);
+            border-radius: 25px;
+            padding: 30px;
+            box-shadow: 0 8px 25px rgba(0,0,0,0.12);
+            border: 4px solid #00897B;
+            display: flex;
+            flex-direction: column;
+        }
+
+        .section-title {
+            font-size: 28px;
+            font-weight: bold;
+            color: #1976D2;
+            margin-bottom: 20px;
+            text-align: center;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 10px;
+        }
+
+        .items-grid {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 18px;
+            flex-grow: 1;
+            align-content: start;
+        }
+
+        .medical-item {
+            background: linear-gradient(135deg, #FFFFFF 0%, #F5F5F5 100%);
+            border-radius: 18px;
+            padding: 20px;
+            cursor: grab;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+            border: 3px solid #42A5F5;
+            transition: all 0.3s;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            gap: 8px;
+            min-height: 120px;
+        }
+
+        .medical-item:hover {
+            transform: translateY(-5px) scale(1.05);
+            box-shadow: 0 8px 20px rgba(0,0,0,0.2);
+            border-color: #1976D2;
+        }
+
+        .medical-item:active {
+            cursor: grabbing;
+        }
+
+        .medical-item.dragging {
+            opacity: 0.4;
+        }
+
+        .medical-item.collected {
+            opacity: 0.3;
+            pointer-events: none;
+            filter: grayscale(80%);
+        }
+
+        .item-icon {
+            font-size: 55px;
+        }
+
+        .item-name {
+            font-size: 16px;
+            font-weight: bold;
+            color: #1976D2;
+            text-align: center;
+        }
+
+        .doctor-bag-section {
+            background: rgba(255, 255, 255, 0.95);
+            border-radius: 25px;
+            padding: 30px;
+            box-shadow: 0 8px 25px rgba(0,0,0,0.12);
+            border: 4px dashed #1976D2;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            position: relative;
+            transition: all 0.3s;
+        }
+
+        .doctor-bag-section.drag-over {
+            background: rgba(66, 165, 245, 0.2);
+            border-style: solid;
+            border-color: #00897B;
+            transform: scale(1.02);
+        }
+
+        .bag-icon {
+            font-size: 150px;
+            margin: 20px 0;
+            animation: bagShake 4s ease-in-out infinite;
+        }
+
+        @keyframes bagShake {
+            0%, 100% { transform: rotate(0deg); }
+            25% { transform: rotate(-3deg); }
+            75% { transform: rotate(3deg); }
+        }
+
+        .collected-items {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 12px;
+            justify-content: center;
+            margin-top: 20px;
+            min-height: 80px;
+        }
+
+        .collected-item {
+            font-size: 45px;
+            animation: itemCollected 0.5s ease-out;
+        }
+
+        @keyframes itemCollected {
+            0% {
+                transform: scale(0) rotate(180deg);
+                opacity: 0;
+            }
+            50% {
+                transform: scale(1.3) rotate(90deg);
+            }
+            100% {
+                transform: scale(1) rotate(0deg);
+                opacity: 1;
+            }
+        }
+
+        .progress-info {
+            font-size: 24px;
+            font-weight: bold;
+            color: #00897B;
+            margin-top: 20px;
+            text-align: center;
+        }
+
+        .completion-modal {
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: rgba(0,0,0,0.75);
+            display: none;
+            align-items: center;
+            justify-content: center;
+            z-index: 1000;
+            animation: fadeIn 0.3s;
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; }
+            to { opacity: 1; }
+        }
+
+        .completion-modal.show {
+            display: flex;
+        }
+
+        .modal-content {
+            background: white;
+            border-radius: 30px;
+            padding: 50px;
+            text-align: center;
+            max-width: 550px;
+            box-shadow: 0 15px 50px rgba(0,0,0,0.3);
+            animation: modalBounce 0.6s ease-out;
+        }
+
+        @keyframes modalBounce {
+            0% { transform: scale(0.3) rotate(-10deg); }
+            50% { transform: scale(1.1) rotate(5deg); }
+            100% { transform: scale(1) rotate(0deg); }
+        }
+
+        .modal-emoji {
+            font-size: 120px;
+            animation: celebrate 1s ease-in-out infinite;
+        }
+
+        @keyframes celebrate {
+            0%, 100% { transform: rotate(-15deg) scale(1); }
+            50% { transform: rotate(15deg) scale(1.1); }
+        }
+
+        @keyframes bounce {
+            0%, 100% { transform: translateY(0); }
+            50% { transform: translateY(-20px); }
+        }
+
+        @keyframes shake {
+            0%, 100% { transform: translateX(0); }
+            25% { transform: translateX(-10px); }
+            75% { transform: translateX(10px); }
+        }
+
+        @keyframes feedbackCorrect {
+            0% { transform: translate(-50%, -50%) scale(0.5); opacity: 0; }
+            100% { transform: translate(-50%, -50%) scale(1); opacity: 1; }
+        }
+
+        @keyframes feedbackWrong {
+            0% { transform: translate(-50%, -50%) scale(0.5); opacity: 0; }
+            100% { transform: translate(-50%, -50%) scale(1); opacity: 1; }
+        }
+
+        @keyframes fadeOut {
+            0% { opacity: 1; }
+            100% { opacity: 0; }
+        }
+
+        .modal-title {
+            font-size: 38px;
+            color: #1976D2;
+            font-weight: bold;
+            margin: 25px 0;
+        }
+
+        .play-again-button {
+            background: linear-gradient(135deg, #42A5F5 0%, #1976D2 100%);
+            color: white;
+            border: none;
+            border-radius: 18px;
+            padding: 20px 50px;
+            font-size: 26px;
+            font-weight: bold;
+            cursor: pointer;
+            margin-top: 20px;
+            box-shadow: 0 6px 20px rgba(0,0,0,0.2);
+            transition: transform 0.2s;
+            font-family: inherit;
+        }
+
+        .play-again-button:hover {
+            transform: scale(1.08);
+        }
+
+        .reset-button {
+            background: linear-gradient(135deg, #00897B 0%, #00695C 100%);
+            color: white;
+            border: none;
+            border-radius: 15px;
+            padding: 16px 40px;
+            font-size: 22px;
+            font-weight: bold;
+            cursor: pointer;
+            box-shadow: 0 5px 15px rgba(0,0,0,0.15);
+            transition: transform 0.2s;
+            margin: 20px auto;
+            display: block;
+            font-family: inherit;
+        }
+
+        .reset-button:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 7px 20px rgba(0,0,0,0.2);
+        }
+
+        @media (max-width: 968px) {
+            .game-area {
+                grid-template-columns: 1fr;
+                gap: 25px;
+            }
+
+            .game-title {
+                font-size: 36px;
+            }
+
+            .instruction-text {
+                font-size: 22px;
+            }
+
+            .items-grid {
+                grid-template-columns: repeat(3, 1fr);
+                gap: 12px;
+            }
+
+            .medical-item {
+                min-height: 100px;
+                padding: 15px;
+            }
+
+            .item-icon {
+                font-size: 45px;
+            }
+
+            .item-name {
+                font-size: 14px;
+            }
+
+            .bag-icon {
+                font-size: 100px;
+            }
+        }
+    </style>
+  <style>@view-transition { navigation: auto; }</style>
+  <script src="/_sdk/data_sdk.js" type="text/javascript"></script>
+  <script src="https://cdn.tailwindcss.com" type="text/javascript"></script>
+ </head>
+ <body>
+  <main>
+   <div class="game-container">
+    <header class="header">
+     <h1 class="game-title" id="gameTitle">Vật dụng của bác sĩ 👨‍⚕️</h1>
+     <div class="doctor-icon">
+      👨‍⚕️
+     </div>
+     <div class="instruction-box">
+      <p class="instruction-text" id="instructionText">Chỉ kéo các dụng cụ y tế vào túi bác sĩ! Đừng kéo những vật khác nhé! 🏥</p>
+     </div>
+    </header>
+    <div class="game-area">
+     <section class="items-section">
+      <h2 class="section-title" id="itemsLabel">🩺 Dụng cụ y tế</h2>
+      <div class="items-grid" id="itemsGrid">
+       <div class="medical-item" draggable="true" data-item="stethoscope" data-type="medical">
+        <div class="item-icon">
+         🩺
+        </div>
+        <div class="item-name">
+         Ống nghe
+        </div>
+       </div>
+       <div class="medical-item" draggable="true" data-item="thermometer" data-type="medical">
+        <div class="item-icon">
+         🌡️
+        </div>
+        <div class="item-name">
+         Nhiệt kế
+        </div>
+       </div>
+       <div class="medical-item" draggable="true" data-item="syringe" data-type="medical">
+        <div class="item-icon">
+         💉
+        </div>
+        <div class="item-name">
+         Bơm tiêm
+        </div>
+       </div>
+       <div class="medical-item" draggable="true" data-item="pill" data-type="medical">
+        <div class="item-icon">
+         💊
+        </div>
+        <div class="item-name">
+         Thuốc viên
+        </div>
+       </div>
+       <div class="medical-item" draggable="true" data-item="bandage" data-type="medical">
+        <div class="item-icon">
+         🩹
+        </div>
+        <div class="item-name">
+         Băng dán
+        </div>
+       </div>
+       <div class="medical-item" draggable="true" data-item="xray" data-type="medical">
+        <div class="item-icon">
+         🦴
+        </div>
+        <div class="item-name">
+         Phim X-quang
+        </div>
+       </div>
+       <div class="medical-item" draggable="true" data-item="banana" data-type="other">
+        <div class="item-icon">
+         🍌
+        </div>
+        <div class="item-name">
+         Chuối
+        </div>
+       </div>
+       <div class="medical-item" draggable="true" data-item="ball" data-type="other">
+        <div class="item-icon">
+         ⚽
+        </div>
+        <div class="item-name">
+         Bóng đá
+        </div>
+       </div>
+       <div class="medical-item" draggable="true" data-item="book" data-type="other">
+        <div class="item-icon">
+         📚
+        </div>
+        <div class="item-name">
+         Sách
+        </div>
+       </div>
+       <div class="medical-item" draggable="true" data-item="car" data-type="other">
+        <div class="item-icon">
+         🚗
+        </div>
+        <div class="item-name">
+         Xe hơi
+        </div>
+       </div>
+       <div class="medical-item" draggable="true" data-item="pencil" data-type="other">
+        <div class="item-icon">
+         ✏️
+        </div>
+        <div class="item-name">
+         Bút chì
+        </div>
+       </div>
+       <div class="medical-item" draggable="true" data-item="flower" data-type="other">
+        <div class="item-icon">
+         🌸
+        </div>
+        <div class="item-name">
+         Hoa
+        </div>
+       </div>
+      </div>
+     </section>
+     <section class="doctor-bag-section" id="doctorBag">
+      <h2 class="section-title" id="doctorLabel">💼 Túi b    c sĩ</h2>
+      <div class="bag-icon">
+       💼
+      </div>
+      <div class="collected-items" id="collectedItems"></div>
+      <div class="progress-info" id="progressInfo">
+       Đã thu thập: 0/6 dụng cụ y tế
+      </div>
+     </section>
+    </div><button class="reset-button" id="resetButton">🔄 Chơi lại</button>
+   </div>
+  </main>
+  <div class="completion-modal" id="completionModal">
+   <div class="modal-content">
+    <div class="modal-emoji">
+     🎉
+    </div>
+    <h2 class="modal-title" id="successMessage">Tuyệt vời! Con đã thu thập đủ dụng cụ y tế!</h2>
+    <div style="font-size: 80px; margin: 20px 0;">
+     👨‍⚕️💼✨
+    </div><button class="play-again-button" id="playAgainButton">Chơi lại</button>
+   </div>
+  </div>
+  <script>
+        const defaultConfig = {
+            background_color: '#E3F2FD',
+            surface_color: '#FFFFFF',
+            text_color: '#1976D2',
+            primary_action_color: '#42A5F5',
+            secondary_action_color: '#00897B',
+            game_title: 'Vật dụng của bác sĩ 👨‍⚕️',
+            instruction_text: 'Chỉ kéo các dụng cụ y tế vào túi bác sĩ! Đừng kéo những vật khác nhé! 🏥',
+            success_message: 'Tuyệt vời! Con đã thu thập đủ dụng cụ y tế!',
+            doctor_label: '💼 Túi bác sĩ',
+            items_label: '🩺 Dụng cụ y tế',
+            font_family: 'Comic Sans MS',
+            font_size: 16
+        };
+
+        let draggedElement = null;
+        let collectedCount = 0;
+        const totalItems = 6;
+
+        function playSound(type) {
+            const audioContext = new (window.AudioContext || window.webkitAudioContext)();
+            
+            if (type === 'correct') {
+                // Âm thanh vỗ tay - 3 tiếng박수
+                for (let i = 0; i < 3; i++) {
+                    setTimeout(() => {
+                        const oscillator = audioContext.createOscillator();
+                        const gainNode = audioContext.createGain();
+                        
+                        oscillator.connect(gainNode);
+                        gainNode.connect(audioContext.destination);
+                        
+                        oscillator.frequency.value = 400;
+                        oscillator.type = 'square';
+                        
+                        gainNode.gain.setValueAtTime(0.3, audioContext.currentTime);
+                        gainNode.gain.exponentialRampToValueAtTime(0.01, audioContext.currentTime + 0.1);
+                        
+                        oscillator.start(audioContext.currentTime);
+                        oscillator.stop(audioContext.currentTime + 0.1);
+                    }, i * 150);
+                }
+            } else if (type === 'wrong') {
+                // Âm thanh tệt tệt - 2 tiếng thấp
+                for (let i = 0; i < 2; i++) {
+                    setTimeout(() => {
+                        const oscillator = audioContext.createOscillator();
+                        const gainNode = audioContext.createGain();
+                        
+                        oscillator.connect(gainNode);
+                        gainNode.connect(audioContext.destination);
+                        
+                        oscillator.frequency.value = 150;
+                        oscillator.type = 'sawtooth';
+                        
+                        gainNode.gain.setValueAtTime(0.2, audioContext.currentTime);
+                        gainNode.gain.exponentialRampToValueAtTime(0.01, audioContext.currentTime + 0.2);
+                        
+                        oscillator.start(audioContext.currentTime);
+                        oscillator.stop(audioContext.currentTime + 0.2);
+                    }, i * 200);
+                }
+            }
+        }
+
+        function initGame() {
+            const itemsGrid = document.getElementById('itemsGrid');
+            const doctorBag = document.getElementById('doctorBag');
+            const collectedItems = document.getElementById('collectedItems');
+            const progressInfo = document.getElementById('progressInfo');
+            const resetButton = document.getElementById('resetButton');
+            const playAgainButton = document.getElementById('playAgainButton');
+
+            itemsGrid.addEventListener('dragstart', (e) => {
+                if (e.target.classList.contains('medical-item') && !e.target.classList.contains('collected')) {
+                    draggedElement = e.target;
+                    e.target.classList.add('dragging');
+                }
+            });
+
+            itemsGrid.addEventListener('dragend', (e) => {
+                if (e.target.classList.contains('medical-item')) {
+                    e.target.classList.remove('dragging');
+                }
+            });
+
+            doctorBag.addEventListener('dragover', (e) => {
+                e.preventDefault();
+                doctorBag.classList.add('drag-over');
+            });
+
+            doctorBag.addEventListener('dragleave', () => {
+                doctorBag.classList.remove('drag-over');
+            });
+
+            doctorBag.addEventListener('drop', (e) => {
+                e.preventDefault();
+                doctorBag.classList.remove('drag-over');
+
+                if (draggedElement && !draggedElement.classList.contains('collected')) {
+                    const itemType = draggedElement.dataset.type;
+                    const itemIcon = draggedElement.querySelector('.item-icon').textContent;
+                    
+                    if (itemType === 'medical') {
+                        playSound('correct');
+                        showFeedback('correct');
+                        
+                        const collectedItem = document.createElement('div');
+                        collectedItem.className = 'collected-item';
+                        collectedItem.textContent = itemIcon;
+                        collectedItems.appendChild(collectedItem);
+
+                        draggedElement.classList.add('collected');
+                        collectedCount++;
+
+                        progressInfo.textContent = `Đã thu thập: ${collectedCount}/${totalItems} dụng cụ y tế`;
+
+                        if (collectedCount === totalItems) {
+                            setTimeout(() => {
+                                document.getElementById('completionModal').classList.add('show');
+                            }, 800);
+                        }
+                    } else {
+                        playSound('wrong');
+                        showFeedback('wrong');
+                    }
+
+                    draggedElement = null;
+                }
+            });
+
+            resetButton.addEventListener('click', resetGame);
+            playAgainButton.addEventListener('click', () => {
+                document.getElementById('completionModal').classList.remove('show');
+                resetGame();
+            });
+
+            function showFeedback(type) {
+                const feedbackDiv = document.createElement('div');
+                feedbackDiv.style.cssText = `
+                    position: fixed;
+                    top: 50%;
+                    left: 50%;
+                    transform: translate(-50%, -50%);
+                    background: white;
+                    padding: 40px 60px;
+                    border-radius: 25px;
+                    box-shadow: 0 15px 50px rgba(0,0,0,0.4);
+                    font-size: 48px;
+                    font-weight: bold;
+                    z-index: 999;
+                    text-align: center;
+                `;
+                
+                if (type === 'correct') {
+                    feedbackDiv.innerHTML = `
+                        <div style="font-size: 100px; animation: bounce 0.6s ease-in-out;">😊</div>
+                        <div style="font-size: 80px; margin: 10px 0;">👏👏👏</div>
+                        <div style="color: #27AE60; font-size: 36px; margin-top: 10px;">Đúng rồi!</div>
+                    `;
+                    feedbackDiv.style.animation = 'feedbackCorrect 0.6s ease-out';
+                } else if (type === 'wrong') {
+                    feedbackDiv.innerHTML = `
+                        <div style="font-size: 100px; animation: shake 0.5s ease-in-out;">😢</div>
+                        <div style="color: #E74C3C; font-size: 36px; margin-top: 10px;">❌ Sai rồi!</div>
+                        <div style="color: #E74C3C; font-size: 28px; margin-top: 5px;">Đây không phải dụng cụ y tế</div>
+                    `;
+                    feedbackDiv.style.animation = 'feedbackWrong 0.5s ease-out';
+                }
+                
+                document.body.appendChild(feedbackDiv);
+                
+                setTimeout(() => {
+                    feedbackDiv.style.animation = 'fadeOut 0.3s ease-out';
+                    setTimeout(() => {
+                        feedbackDiv.remove();
+                    }, 300);
+                }, 1500);
+            }
+
+            function resetGame() {
+                const allItems = document.querySelectorAll('.medical-item');
+                allItems.forEach(item => {
+                    item.classList.remove('collected');
+                });
+
+                collectedItems.innerHTML = '';
+                collectedCount = 0;
+                progressInfo.textContent = `Đã thu thập: 0/${totalItems} dụng cụ y tế`;
+            }
+        }
+
+        async function onConfigChange(config) {
+            const baseSize = config.font_size || defaultConfig.font_size;
+            const customFont = config.font_family || defaultConfig.font_family;
+            const baseFontStack = 'Arial, sans-serif';
+            const fullFontFamily = `${customFont}, ${baseFontStack}`;
+
+            document.body.style.background = `linear-gradient(135deg, ${config.background_color || defaultConfig.background_color} 0%, #BBDEFB 100%)`;
+            document.body.style.fontFamily = fullFontFamily;
+
+            const gameTitle = document.getElementById('gameTitle');
+            if (gameTitle) {
+                gameTitle.textContent = config.game_title || defaultConfig.game_title;
+                gameTitle.style.color = config.text_color || defaultConfig.text_color;
+                gameTitle.style.fontSize = `${baseSize * 3}px`;
+            }
+
+            const instructionText = document.getElementById('instructionText');
+            if (instructionText) {
+                instructionText.textContent = config.instruction_text || defaultConfig.instruction_text;
+                instructionText.style.color = config.secondary_action_color || defaultConfig.secondary_action_color;
+                instructionText.style.fontSize = `${baseSize * 1.625}px`;
+            }
+
+            const successMessage = document.getElementById('successMessage');
+            if (successMessage) {
+                successMessage.textContent = config.success_message || defaultConfig.success_message;
+                successMessage.style.color = config.text_color || defaultConfig.text_color;
+                successMessage.style.fontSize = `${baseSize * 2.375}px`;
+            }
+
+            const doctorLabel = document.getElementById('doctorLabel');
+            if (doctorLabel) {
+                doctorLabel.textContent = config.doctor_label || defaultConfig.doctor_label;
+                doctorLabel.style.color = config.text_color || defaultConfig.text_color;
+                doctorLabel.style.fontSize = `${baseSize * 1.75}px`;
+            }
+
+            const itemsLabel = document.getElementById('itemsLabel');
+            if (itemsLabel) {
+                itemsLabel.textContent = config.items_label || defaultConfig.items_label;
+                itemsLabel.style.color = config.text_color || defaultConfig.text_color;
+                itemsLabel.style.fontSize = `${baseSize * 1.75}px`;
+            }
+
+            const itemsSection = document.querySelector('.items-section');
+            if (itemsSection) {
+                itemsSection.style.borderColor = config.secondary_action_color || defaultConfig.secondary_action_color;
+            }
+
+            const doctorBagSection = document.querySelector('.doctor-bag-section');
+            if (doctorBagSection) {
+                doctorBagSection.style.borderColor = config.text_color || defaultConfig.text_color;
+            }
+
+            const instructionBox = document.querySelector('.instruction-box');
+            if (instructionBox) {
+                instructionBox.style.borderColor = config.primary_action_color || defaultConfig.primary_action_color;
+            }
+
+            const medicalItems = document.querySelectorAll('.medical-item');
+            medicalItems.forEach(item => {
+                item.style.borderColor = config.primary_action_color || defaultConfig.primary_action_color;
+                const itemName = item.querySelector('.item-name');
+                if (itemName) {
+                    itemName.style.color = config.text_color || defaultConfig.text_color;
+                    itemName.style.fontSize = `${baseSize}px`;
+                }
+            });
+
+            const progressInfo = document.getElementById('progressInfo');
+            if (progressInfo) {
+                progressInfo.style.color = config.secondary_action_color || defaultConfig.secondary_action_color;
+                progressInfo.style.fontSize = `${baseSize * 1.5}px`;
+            }
+
+            const playAgainButton = document.getElementById('playAgainButton');
+            if (playAgainButton) {
+                playAgainButton.style.background = `linear-gradient(135deg, ${config.primary_action_color || defaultConfig.primary_action_color} 0%, ${config.text_color || defaultConfig.text_color} 100%)`;
+                playAgainButton.style.fontSize = `${baseSize * 1.625}px`;
+            }
+
+            const resetButton = document.getElementById('resetButton');
+            if (resetButton) {
+                resetButton.style.background = `linear-gradient(135deg, ${config.secondary_action_color || defaultConfig.secondary_action_color} 0%, #00695C 100%)`;
+                resetButton.style.fontSize = `${baseSize * 1.375}px`;
+            }
+        }
+
+        if (window.elementSdk) {
+            window.elementSdk.init({
+                defaultConfig: defaultConfig,
+                onConfigChange: onConfigChange,
+                mapToCapabilities: (config) => ({
+                    recolorables: [
+                        {
+                            get: () => config.background_color || defaultConfig.background_color,
+                            set: (value) => {
+                                config.background_color = value;
+                                window.elementSdk.setConfig({ background_color: value });
+                            }
+                        },
+                        {
+                            get: () => config.surface_color || defaultConfig.surface_color,
+                            set: (value) => {
+                                config.surface_color = value;
+                                window.elementSdk.setConfig({ surface_color: value });
+                            }
+                        },
+                        {
+                            get: () => config.text_color || defaultConfig.text_color,
+                            set: (value) => {
+                                config.text_color = value;
+                                window.elementSdk.setConfig({ text_color: value });
+                            }
+                        },
+                        {
+                            get: () => config.primary_action_color || defaultConfig.primary_action_color,
+                            set: (value) => {
+                                config.primary_action_color = value;
+                                window.elementSdk.setConfig({ primary_action_color: value });
+                            }
+                        },
+                        {
+                            get: () => config.secondary_action_color || defaultConfig.secondary_action_color,
+                            set: (value) => {
+                                config.secondary_action_color = value;
+                                window.elementSdk.setConfig({ secondary_action_color: value });
+                            }
+                        }
+                    ],
+                    borderables: [],
+                    fontEditable: {
+                        get: () => config.font_family || defaultConfig.font_family,
+                        set: (value) => {
+                            config.font_family = value;
+                            window.elementSdk.setConfig({ font_family: value });
+                        }
+                    },
+                    fontSizeable: {
+                        get: () => config.font_size || defaultConfig.font_size,
+                        set: (value) => {
+                            config.font_size = value;
+                            window.elementSdk.setConfig({ font_size: value });
+                        }
+                    }
+                }),
+                mapToEditPanelValues: (config) => new Map([
+                    ['game_title', config.game_title || defaultConfig.game_title],
+                    ['instruction_text', config.instruction_text || defaultConfig.instruction_text],
+                    ['success_message', config.success_message || defaultConfig.success_message],
+                    ['doctor_label', config.doctor_label || defaultConfig.doctor_label],
+                    ['items_label', config.items_label || defaultConfig.items_label]
+                ])
+            });
+        }
+
+        document.addEventListener('DOMContentLoaded', () => {
+            initGame();
+            onConfigChange(window.elementSdk?.config || defaultConfig);
+        });
+    </script>
+ <script>(function(){function c(){var b=a.contentDocument||a.contentWindow.document;if(b){var d=b.createElement('script');d.innerHTML="window.__CF$cv$params={r:'9a3164f3012bca12',t:'MTc2MzkwODUzOS4wMDAwMDA='};var a=document.createElement('script');a.nonce='';a.src='/cdn-cgi/challenge-platform/scripts/jsd/main.js';document.getElementsByTagName('head')[0].appendChild(a);";b.getElementsByTagName('head')[0].appendChild(d)}}if(document.body){var a=document.createElement('iframe');a.height=1;a.width=1;a.style.position='absolute';a.style.top=0;a.style.left=0;a.style.border='none';a.style.visibility='hidden';document.body.appendChild(a);if('loading'!==document.readyState)c();else if(window.addEventListener)document.addEventListener('DOMContentLoaded',c);else{var e=document.onreadystatechange||function(){};document.onreadystatechange=function(b){e(b);'loading'!==document.readyState&&(document.onreadystatechange=e,c())}}}})();</script></body>
+</html>
